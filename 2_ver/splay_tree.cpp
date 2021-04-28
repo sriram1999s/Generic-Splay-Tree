@@ -31,6 +31,7 @@ class SplayTree
 		void zig_zag(Node<T> *gp, Node<T> *parent, Node<T> *ptr);
 		void zag_zig(Node<T> *gp, Node<T> *parent, Node<T> *ptr);
 		void copy(Node<T> *h1, const Node<T> *h2);
+		void _deallocate(Node<T> *node);
 		SplayTree(const Node<T> *head);
 	public:
 		SplayTree();
@@ -55,6 +56,10 @@ class SplayTree
 template <typename T>
 SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 {
+	if (!st1.head_ || !st2.head_) {
+		return SplayTree<T>();
+	}
+
 	Node<T> *rightmost_st1 = st1.head_;
 	while (rightmost_st1->right) {
 		rightmost_st1 = rightmost_st1->right;
@@ -65,7 +70,7 @@ SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 		leftmost_st2 = leftmost_st2->left;
 	}
 
-	if (rightmost_st1 >= leftmost_st2) {
+	if (rightmost_st1->value >= leftmost_st2->value) {
 		return SplayTree<T>();
 	}
 
@@ -78,8 +83,11 @@ SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 	}
 
 	combined.splay(rightmost_combined);
+
 	assert (combined.head_->right == nullptr);
-	combined.head_->right = temp.head_;
+
+	combined.head_->right = new Node<T>(temp.head_->value);
+	combined.copy(combined.head_->right, temp.head_);
 
 	return combined;
 }
@@ -105,22 +113,33 @@ SplayTree<T>::SplayTree() : head_(nullptr) {}
 template <typename T>
 SplayTree<T>::SplayTree(const SplayTree& rhs)
 {
-	head_ = new Node<T>(rhs.head_->value);
-	copy(head_, rhs.head_);
+	head_ = nullptr;
+	if (rhs.head_) {
+		head_ = new Node<T>(rhs.head_->value);
+		copy(head_, rhs.head_);
+	}
 }
 
 template <typename T>
 SplayTree<T>::SplayTree(const Node<T> *head)
 {
-	head_ = new Node<T>(head->value);
-	copy(head_, head);
+	head_ = nullptr;
+	if (head) {
+		head_ = new Node<T>(head->value);
+		copy(head_, head);
+	}
 }
 
 template <typename T>
 SplayTree<T>& SplayTree<T>::operator=(const SplayTree& rhs)
 {
-	head_ = new Node<T>(rhs.head_->value);
-	copy(head_, rhs.head_);
+	_deallocate(head_);
+
+	head_ = nullptr;
+	if (rhs.head_) {
+		head_ = new Node<T>(rhs.head_->value);
+		copy(head_, rhs.head_);
+	}
 
 	return *this;
 }
@@ -131,10 +150,14 @@ void SplayTree<T>::copy(Node<T> *h1, const Node<T> *h2)
 	if (h2->left) {
 		h1->left = new Node<T>(h2->left->value);
 		copy(h1->left, h2->left);
+	} else {
+		h1->left = nullptr;
 	}
 	if (h2->right) {
 		h1->right = new Node<T>(h2->right->value);
 		copy(h1->right, h2->right);
+	} else {
+		h1->right = nullptr;
 	}
 }
 
@@ -296,42 +319,59 @@ void SplayTree<T>::splay(Node<T> *ptr)
 	splay(ptr);
 }
 
-template<typename T>
+// template<typename T>
+// SplayTree<T>::~SplayTree()
+// {
+// 	Node<T> *trav;
+// 	Node<T> *prev;
+// 	while(head_ != nullptr)
+// 	{
+// 		prev = nullptr;
+// 		trav = head_;
+// 		while(trav->left || trav->right)
+// 		{
+// 			prev = trav;
+// 			if(trav->left == nullptr)
+// 			{
+// 				trav = trav->right;
+// 			}
+// 			else
+// 			{
+// 				trav = trav->left;
+// 			}
+// 		}
+//
+// 		if(head_ == trav)
+// 		{
+// 			head_ = nullptr;
+// 		}
+// 		else if(prev->left == trav)
+// 		{
+// 			prev->left = nullptr;
+// 		}
+// 		else
+// 		{
+// 			prev->right = nullptr;
+// 		}
+// 		delete trav;
+// 	}
+// }
+
+template <typename T>
+void SplayTree<T>::_deallocate(Node<T> *node)
+{
+	if (!node) return;
+
+	_deallocate(node->left);
+	_deallocate(node->right);
+
+	delete node;
+}
+
+template <typename T>
 SplayTree<T>::~SplayTree()
 {
-	Node<T> *trav;
-	Node<T> *prev;
-	while(head_ != nullptr)
-	{
-		prev = nullptr;
-		trav = head_;
-		while(trav->left || trav->right)
-		{
-			prev = trav;
-			if(trav->left == nullptr)
-			{
-				trav = trav->right;
-			}
-			else
-			{
-				trav = trav->left;
-			}
-		}
-
-		if(head_ == trav)
-		{
-			head_ = nullptr;
-		}
-		else if(prev->left == trav)
-		{
-			prev->left = nullptr;
-		}
-		else
-		{
-			prev->right = nullptr;
-		}
-		delete trav;
-	}
+	_deallocate(head_);
 }
 
 /* -------------- SplayTree member function end ----------- */
@@ -360,15 +400,16 @@ int main()
 	cout << "root: " << st.get_root() << '\n';
 	cout << "root2: " << st2.get_root() << '\n';
 
-	st2.remove(12);
-	st2.inorder();
-	cout << '\n';
-	cout << "root2 new: " << st2.get_root() << '\n';
 
 	// SplayTree<int> comb;
-	// SplayTree<int> comb(join(st, st2));
-	// comb = join(st, st2);
-	// comb.inorder();
-	// cout << '\n';
-	// cout << "root comb: " << comb.get_root() << '\n';
+	SplayTree<int> comb = join(st, st2);
+	// // comb = join(st, st2);
+	comb.inorder();
+	cout << '\n';
+	cout << "root comb: " << comb.get_root() << '\n';
+
+	comb.remove(12);
+	comb.inorder();
+	cout << '\n';
+	cout << "root comb new: " << comb.get_root() << '\n';
 }
