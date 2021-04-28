@@ -7,6 +7,8 @@ using namespace std;
 template<typename T>
 class SplayTree
 {
+	public:
+		class iterator;
 	private:
 		Node<T> *head_;
 		void _inorder(Node<T> *head);
@@ -22,10 +24,6 @@ class SplayTree
 		inline Node<T>* _find(Node<T>*, const T&);
 		SplayTree(const Node<T> *head);
 	public:
-		// class Iterator
-		// {
-		// 	Iterator();
-		// }
 		SplayTree();
 		~SplayTree();
 		SplayTree(const SplayTree&);
@@ -34,7 +32,7 @@ class SplayTree
 		void inorder();
 		void insert(const T& value);
 		void remove(const T& value);
-		void find(const T& elt); // return iterator instead
+		iterator find(const T& elt); // return iterator instead
 		SplayTree split(const T& elt);
 		T get_root()
 		{
@@ -43,7 +41,122 @@ class SplayTree
 		}
 		template <typename U>
 		friend SplayTree<U> join(const SplayTree<U> &st1, const SplayTree<U> &st2);
+
+		class iterator
+		{
+			private:
+				Node<T>* p_;
+			public:
+				iterator(Node<T> *p = nullptr) : p_(p) { }
+				~iterator() {}
+				iterator(const iterator& rhs)
+				{
+					p_ = rhs.p_;
+				}
+
+				bool operator==(const iterator& rhs)
+				{
+					return p_ == rhs.p_;
+				}
+				bool operator!=(const iterator& rhs)
+				{
+					return !operator==(rhs);
+				}
+				iterator& operator=(const iterator& rhs)
+				{
+					p_ = rhs.p_;
+					return *this;
+				}
+
+				T operator*()
+				{
+					return p_->value;
+				}
+
+				iterator& operator++()
+				{
+					if(p_){
+						if(p_->right)
+						{
+							p_ = p_->right;
+							while(p_->left) p_ = p_->left;
+						}
+						else
+						{
+							while(p_->parent && !(p_->parent->value > p_->value)) p_ = p_->parent;
+							p_ = p_->parent;
+						}
+					}
+					return *this;
+				}
+				iterator operator++(int)
+				{
+					iterator temp(*this);
+					++*this;
+					return temp;
+				}
+
+				iterator& operator--()
+				{
+					if(!p_) /* to be completed */
+					{
+
+					}
+					else
+					{
+						if(p_->left)
+						{
+							p_ = p_->left;
+							while(p_->right) p_ = p_->right;
+						}
+						else
+						{
+							while(p_->parent && (p_->parent->value < p_->value)) p_ = p_->parent;
+							p_ = p_->parent;
+						}
+					}
+					return *this;
+				}
+
+				iterator operator+(int x)
+				{
+					iterator temp(*this);
+					while(x--)
+					{
+						++temp;
+					}
+					return temp;
+				}
+
+
+		};
+		iterator begin();
+		iterator end();
 };
+
+/* -------------- SplayTree iterator functions ----------------- */
+
+template <typename T>
+typename SplayTree<T>::iterator SplayTree<T>::begin()
+{
+	if(!head_)
+	{
+		return iterator();
+	}
+	Node<T> *trav = head_;
+	while(trav->left)
+	{
+		trav = trav->left;
+	}
+	return iterator(trav);
+}
+
+template <typename T>
+typename SplayTree<T>::iterator SplayTree<T>::end()
+{
+	return iterator();
+}
+/* -------------- SplayTree iterator functions ends ------------ */
 
 /* -------------- SplayTree friend functions ------------------- */
 
@@ -136,7 +249,7 @@ void SplayTree<T>::copy(Node<T> *h1, const Node<T> *h2)
 		h1->left->parent = h1;
 		copy(h1->left, h2->left);
 	}
-	
+
 	if (h2->right) {
 		h1->right = new Node<T>(h2->right->value);
 		h1->right->parent = h1;
@@ -384,16 +497,19 @@ inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt)
 }
 
 template <typename T>
-void SplayTree<T>::find(const T& elt)
+typename SplayTree<T>::iterator SplayTree<T>::find(const T& elt)
 {
 	Node<T> *h = _find(head_, elt);
 
 	// return iterator instead of the below code
 	if (h) {
-		cout << h->value << " is found\n";
 		splay(h);
-	} else {
-		cout << "Not found\n";
+		assert(h == head_);
+		return iterator(h);
+	}
+	else
+	{
+		return iterator();
 	}
 }
 

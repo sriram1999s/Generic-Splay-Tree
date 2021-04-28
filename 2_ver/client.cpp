@@ -3,6 +3,28 @@
 
 using namespace std;
 
+
+template <typename T>
+void disp(T first, T last)
+{
+	while(first != last)
+	{
+		cout << *first << '\t';
+		++first;
+	}
+	cout << '\n';
+}
+
+template <typename T>
+void rdisp(T last, T first)
+{
+	while(first != last)
+	{
+		cout << *last << '\t';
+		--last;
+	}
+	cout << '\n';
+}
 int main()
 {
 	SplayTree<int> st;
@@ -48,4 +70,23 @@ int main()
 	st_float.insert(1.1);
 
 	st_float.inorder();
+
+	SplayTree<int>::iterator it = st.begin();
+
+	cout << "*it : " << *it << '\n';
+
+	cout << "*(it + 3) : " << *(it + 3) << '\n';
+
+	SplayTree<int>::iterator it2(it);
+
+	cout << "*it2 : " << *it2 << '\n';
+
+	auto yt = st.find(5);
+
+	disp(st.begin(), yt + 1);
+
+	disp(st_float.begin(), st_float.end());
+
+	rdisp( yt, st.begin());
+
 }
