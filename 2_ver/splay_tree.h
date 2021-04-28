@@ -1,28 +1,12 @@
 #include<iostream>
 #include <cassert>
+#include "node.h"
+
 using namespace std;
-
-template <typename T>
-class SplayTree;
-
-template<typename T>
-class Node
-{
-	private:
-		Node(T n);
-		T value;
-		Node<T>* left;
-		Node<T>* right;
-		~Node();
-		friend class SplayTree<T>;
-		template <typename U>
-		friend SplayTree<U> join(const SplayTree<U> &st1, const SplayTree<U> &st2);
-};
 
 template<typename T>
 class SplayTree
 {
-
 	private:
 		Node<T> *head_;
 		void _inorder(Node<T> *head);
@@ -32,8 +16,13 @@ class SplayTree
 		void zag_zig(Node<T> *gp, Node<T> *parent, Node<T> *ptr);
 		void copy(Node<T> *h1, const Node<T> *h2);
 		void _deallocate(Node<T> *node);
+		inline Node<T>* _find(Node<T>*, const T&);
 		SplayTree(const Node<T> *head);
 	public:
+		class Iterator
+		{
+			Iterator();
+		}
 		SplayTree();
 		~SplayTree();
 		SplayTree(const SplayTree&);
@@ -42,6 +31,8 @@ class SplayTree
 		void inorder();
 		void insert(const T& value);
 		void remove(const T& value);
+		void find(const T& elt); // return iterator instead
+		SplayTree split(const T& elt);
 		T get_root()
 		{
 			if (!head_) return T();
@@ -95,17 +86,7 @@ SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 /* -------------- SplayTree friend functions end --------------- */
 
 
-/* -------------- Node member functions ------------------- */
-
-template<typename T>
-Node<T>::Node(T n) : value(n), left(nullptr), right(nullptr) {}
-
-template<typename T>
-Node<T>::~Node() {}
-
-/* -------------- Node member functions end --------------- */
-
-/* -------------- SplayTree member function --------------- */
+/* -------------- SplayTree member function -------------------- */
 
 template<typename T>
 SplayTree<T>::SplayTree() : head_(nullptr) {}
@@ -164,15 +145,7 @@ void SplayTree<T>::copy(Node<T> *h1, const Node<T> *h2)
 template <typename T>
 void SplayTree<T>::remove(const T& value)
 {
-	Node<T> *elt_ptr = head_;
-
-	while(elt_ptr && elt_ptr->value != value) {
-		if (elt_ptr->value > value) {
-			elt_ptr = elt_ptr->left;
-		} else {
-			elt_ptr = elt_ptr->right;
-		}
-	}
+	Node<T> *elt_ptr = _find(head_, value);
 
 	if (!elt_ptr) {
 		return;
@@ -237,6 +210,7 @@ template <typename T>
 void SplayTree<T>::inorder()
 {
 	_inorder(this->head_);
+	cout << '\n';
 }
 
 template <typename T>
@@ -319,43 +293,43 @@ void SplayTree<T>::splay(Node<T> *ptr)
 	splay(ptr);
 }
 
-// template<typename T>
-// SplayTree<T>::~SplayTree()
-// {
-// 	Node<T> *trav;
-// 	Node<T> *prev;
-// 	while(head_ != nullptr)
-// 	{
-// 		prev = nullptr;
-// 		trav = head_;
-// 		while(trav->left || trav->right)
-// 		{
-// 			prev = trav;
-// 			if(trav->left == nullptr)
-// 			{
-// 				trav = trav->right;
-// 			}
-// 			else
-// 			{
-// 				trav = trav->left;
-// 			}
-// 		}
-//
-// 		if(head_ == trav)
-// 		{
-// 			head_ = nullptr;
-// 		}
-// 		else if(prev->left == trav)
-// 		{
-// 			prev->left = nullptr;
-// 		}
-// 		else
-// 		{
-// 			prev->right = nullptr;
-// 		}
-// 		delete trav;
-// 	}
-// }
+template <typename T>
+inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt)
+{
+	while (ptr && ptr->value != elt) {
+		if (ptr->value > elt) {
+			ptr = ptr->left;
+		} else {
+			ptr = ptr->right;
+		}
+	}
+
+	return ptr;
+}
+
+template <typename T>
+void SplayTree<T>::find(const T& elt)
+{
+	Node<T> *h = _find(head_, elt);
+
+	// return iterator instead of the below code
+	if (h) {
+		cout << h->value << " is found\n";
+		splay(h);
+	} else {
+		cout << "Not found\n";
+	}
+}
+
+/*
+template <typename T>
+SplayTree<T> SplayTree<T>::split(const T& elt)
+{
+	Node<T> *ptr = _find(head_, elt);
+
+	//iterator pending
+}
+*/
 
 template <typename T>
 void SplayTree<T>::_deallocate(Node<T> *node)
@@ -374,42 +348,4 @@ SplayTree<T>::~SplayTree()
 	_deallocate(head_);
 }
 
-/* -------------- SplayTree member function end ----------- */
-
-int main()
-{
-	SplayTree<int> st;
-	st.insert(2);
-	st.insert(3);
-	st.insert(4);
-	st.insert(5);
-	st.insert(6);
-	st.insert(1);
-
-	SplayTree<int> st2;
-	st2.insert(10);
-	st2.insert(11);
-	st2.insert(12);
-	st2.insert(13);
-	st2.insert(14);
-
-	st.inorder();
-	cout << '\n';
-	st2.inorder();
-	cout << '\n';
-	cout << "root: " << st.get_root() << '\n';
-	cout << "root2: " << st2.get_root() << '\n';
-
-
-	// SplayTree<int> comb;
-	SplayTree<int> comb = join(st, st2);
-	// // comb = join(st, st2);
-	comb.inorder();
-	cout << '\n';
-	cout << "root comb: " << comb.get_root() << '\n';
-
-	comb.remove(12);
-	comb.inorder();
-	cout << '\n';
-	cout << "root comb new: " << comb.get_root() << '\n';
-}
+/* -------------- SplayTree member function end ---------------- */
