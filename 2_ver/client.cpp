@@ -1,5 +1,5 @@
 #include <iostream>
-#include "splay_tree.h"
+#include "splay_tree.hpp"
 
 using namespace std;
 
@@ -7,8 +7,8 @@ int main()
 {
 	SplayTree<int> st;
 	st.insert(2);
-	st.insert(3);
 	st.insert(4);
+	st.insert(3);
 	st.insert(5);
 	st.insert(6);
 	st.insert(1);

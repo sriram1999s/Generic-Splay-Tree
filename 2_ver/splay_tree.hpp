@@ -1,6 +1,6 @@
 #include<iostream>
 #include <cassert>
-#include "node.h"
+#include "node.hpp"
 
 using namespace std;
 
@@ -12,17 +12,20 @@ class SplayTree
 		void _inorder(Node<T> *head);
 		void splay(Node<T> *ptr);
 		void zig(Node<T> *parent, Node<T> *ptr);
+		void zig(Node<T> *ptr);
 		void zig_zag(Node<T> *gp, Node<T> *parent, Node<T> *ptr);
+		void zig_zag(Node<T> *ptr);
 		void zag_zig(Node<T> *gp, Node<T> *parent, Node<T> *ptr);
+		void zag_zig(Node<T> *ptr);
 		void copy(Node<T> *h1, const Node<T> *h2);
 		void _deallocate(Node<T> *node);
 		inline Node<T>* _find(Node<T>*, const T&);
 		SplayTree(const Node<T> *head);
 	public:
-		class Iterator
-		{
-			Iterator();
-		}
+		// class Iterator
+		// {
+		// 	Iterator();
+		// }
 		SplayTree();
 		~SplayTree();
 		SplayTree(const SplayTree&);
@@ -130,15 +133,14 @@ void SplayTree<T>::copy(Node<T> *h1, const Node<T> *h2)
 {
 	if (h2->left) {
 		h1->left = new Node<T>(h2->left->value);
+		h1->left->parent = h1;
 		copy(h1->left, h2->left);
-	} else {
-		h1->left = nullptr;
 	}
+	
 	if (h2->right) {
 		h1->right = new Node<T>(h2->right->value);
+		h1->right->parent = h1;
 		copy(h1->right, h2->right);
-	} else {
-		h1->right = nullptr;
 	}
 }
 
@@ -193,6 +195,8 @@ void SplayTree<T>::insert(const T& value)
 		prev->right = temp;
 	}
 
+	temp->parent = prev;
+
 	splay(temp);
 }
 
@@ -230,6 +234,29 @@ void SplayTree<T>::zig(Node<T> *parent, Node<T> *ptr)
 }
 
 template <typename T>
+void SplayTree<T>::zig(Node<T> *ptr)
+{
+	Node<T> *parent = ptr->parent;
+	if (parent->left == ptr) {
+		Node<T> *rptr = ptr->right;
+		ptr->right = parent;
+		ptr->parent = parent->parent;
+		parent->parent = ptr;
+		parent->left = rptr;
+		if (rptr) rptr->parent = parent;
+	} else {
+		Node<T> *lptr = ptr->left;
+		ptr->left = parent;
+		ptr->parent = parent->parent;
+		parent->right = lptr;
+		parent->parent = ptr;
+		if (lptr) lptr->parent = parent;
+	}
+
+	head_ = ptr;
+}
+
+template <typename T>
 void SplayTree<T>::zig_zag(Node<T> *gp, Node<T> *parent, Node<T> *child)
 {
 	Node<T> *rchild = child->right;
@@ -239,6 +266,30 @@ void SplayTree<T>::zig_zag(Node<T> *gp, Node<T> *parent, Node<T> *child)
 	child->left = parent;
 	gp->left = rchild;
 	child->right = gp;
+
+	head_ = child;
+}
+
+template <typename T>
+void SplayTree<T>::zig_zag(Node<T> *child)
+{
+	Node<T> *gp = child->parent->parent;
+	Node<T>* parent = child->parent;
+
+	Node<T> *rchild = child->right;
+	Node<T> *lchild = child->left;
+
+	child->parent = gp->parent;
+
+	parent->right = lchild;
+	if (lchild) lchild->parent = parent;
+	child->left = parent;
+	parent->parent = child;
+
+	gp->left = rchild;
+	if (rchild) rchild->parent = gp;
+	child->right = gp;
+	gp->parent = child;
 
 	head_ = child;
 }
@@ -258,6 +309,30 @@ void SplayTree<T>::zag_zig(Node<T> *gp, Node<T> *parent, Node<T> *child)
 }
 
 template <typename T>
+void SplayTree<T>::zag_zig(Node<T> *child)
+{
+	Node<T> *gp = child->parent->parent;
+	Node<T>* parent = child->parent;
+
+	Node<T> *rchild = child->right;
+	Node<T> *lchild = child->left;
+
+	child->parent = gp->parent;
+
+	parent->left = rchild;
+	if (rchild) rchild->parent = parent;
+	child->right = parent;
+	parent->parent = child;
+
+	gp->right = lchild;
+	if (lchild) lchild->parent = gp;
+	child->left = gp;
+	gp->parent = child;
+
+	head_ = child;
+}
+
+template <typename T>
 void SplayTree<T>::splay(Node<T> *ptr)
 {
 	if (ptr == head_) return;
@@ -268,25 +343,26 @@ void SplayTree<T>::splay(Node<T> *ptr)
 	if (parent->value > ptr->value) {
 		child = parent->left;
 		if (child == ptr) {
-			zig(parent, child);
+			// zig(parent, child);
+			zig(child);
 		} else {
 			if (child->value > ptr->value) {
-				zig(parent, child);
+				zig(child);
 			} else {
 				// cout << "zig zag" << endl;
-				zig_zag(parent, child, child->right);
+				zig_zag(child->right);
 			}
 		}
 	} else {
 		child = parent->right;
 		if (child == ptr) {
-			zig(parent, child);
+			zig(child);
 		} else {
 			if (child->value > ptr->value) {
 				// cout << "zag zig" << endl;
-				zag_zig(parent, child, child->left);
+				zag_zig(child->left);
 			} else {
-				zig(parent, child);
+				zig(child);
 			}
 		}
 	}

@@ -7,8 +7,9 @@ class Node
 	private:
 		Node(T n);
 		T value;
-		Node<T>* left;
-		Node<T>* right;
+		Node<T> *left;
+		Node<T> *right;
+		Node<T> *parent;
 		~Node();
 		friend class SplayTree<T>;
 		template <typename U>
@@ -18,7 +19,7 @@ class Node
 /* -------------- Node member functions ------------------- */
 
 template<typename T>
-Node<T>::Node(T n) : value(n), left(nullptr), right(nullptr) {}
+Node<T>::Node(T n) : value(n), left(nullptr), right(nullptr), parent(nullptr) {}
 
 template<typename T>
 Node<T>::~Node() {}
