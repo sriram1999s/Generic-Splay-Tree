@@ -30,7 +30,7 @@ class SplayTree
 		void zig(Node<T> *parent, Node<T> *ptr);
 		void zig_zag(Node<T> *gp, Node<T> *parent, Node<T> *ptr);
 		void zag_zig(Node<T> *gp, Node<T> *parent, Node<T> *ptr);
-		void copy(Node<T> *h1, Node<T> *h2);
+		void copy(Node<T> *h1, const Node<T> *h2);
 		SplayTree(const Node<T> *head);
 	public:
 		SplayTree();
@@ -112,7 +112,8 @@ SplayTree<T>::SplayTree(const SplayTree& rhs)
 template <typename T>
 SplayTree<T>::SplayTree(const Node<T> *head)
 {
-	head_ = head;
+	head_ = new Node<T>(head->value);
+	copy(head_, head);
 }
 
 template <typename T>
@@ -125,7 +126,7 @@ SplayTree<T>& SplayTree<T>::operator=(const SplayTree& rhs)
 }
 
 template <typename T>
-void SplayTree<T>::copy(Node<T> *h1, Node<T> *h2)
+void SplayTree<T>::copy(Node<T> *h1, const Node<T> *h2)
 {
 	if (h2->left) {
 		h1->left = new Node<T>(h2->left->value);
@@ -143,7 +144,7 @@ void SplayTree<T>::remove(const T& value)
 	Node<T> *elt_ptr = head_;
 
 	while(elt_ptr && elt_ptr->value != value) {
-		if (elt_ptr->value < value) {
+		if (elt_ptr->value > value) {
 			elt_ptr = elt_ptr->left;
 		} else {
 			elt_ptr = elt_ptr->right;
@@ -155,8 +156,8 @@ void SplayTree<T>::remove(const T& value)
 	}
 
 	splay(elt_ptr);
-	SplayTree<T> left_sub(SplayTree<T>(head_->left));
-	SplayTree<T> right_sub(SplayTree<T>(head_->right));
+	SplayTree<T> left_sub(head_->left);
+	SplayTree<T> right_sub(head_->right);
 	*this = join(left_sub, right_sub);
 }
 
