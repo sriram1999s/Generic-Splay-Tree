@@ -49,7 +49,10 @@ int main()
 
 
 	// SplayTree<int> comb;
+	cout << "h1\n";
 	SplayTree<int> comb = join(st, st2);
+	cout << "h2\n";
+
 	// // comb = join(st, st2);
 	comb.inorder();
 	cout << "root comb: " << comb.get_root() << '\n';
@@ -75,7 +78,7 @@ int main()
 
 	cout << "*it : " << *it << '\n';
 
-	cout << "*(it + 3) : " << *(it + 3) << '\n';
+	cout << "*(it + 3) : " << *(it) << '\n';
 
 	SplayTree<int>::iterator it2(it);
 
@@ -83,10 +86,28 @@ int main()
 
 	auto yt = st.find(5);
 
-	disp(st.begin(), yt + 1);
+	disp(st.begin(), ++yt);
 
 	disp(st_float.begin(), st_float.end());
 
-	rdisp( yt, st.begin());
+	SplayTree<int> s;
+	s.insert(1); s.insert(3); s.insert(2);
 
+	auto test = s.end();
+
+	disp(s.begin(), ++ ++ ++ ++test);
+
+	disp(s.begin(), -- -- -- --test);
+
+	cout << "front: " << test.front << '\n';
+	cout << "back: " << test.back << '\n';
+
+	auto test2 = s.begin();
+	--test2;
+	// ++test2;
+
+	cout << "front2: " << test2.front << '\n';
+	cout << "back2: " << test2.back << '\n';
+
+	// rdisp(--s.end(), --s.begin());
 }

@@ -5,8 +5,9 @@ template<typename T>
 class Node
 {
 	private:
-		Node(T n);
+		Node(T n, bool end = false);
 		T value;
+		bool end;
 		Node<T> *left;
 		Node<T> *right;
 		Node<T> *parent;
@@ -19,7 +20,7 @@ class Node
 /* -------------- Node member functions ------------------- */
 
 template<typename T>
-Node<T>::Node(T n) : value(n), left(nullptr), right(nullptr), parent(nullptr) {}
+Node<T>::Node(T n, bool end) : value(n), end(end), left(nullptr), right(nullptr), parent(nullptr) {}
 
 template<typename T>
 Node<T>::~Node() {}

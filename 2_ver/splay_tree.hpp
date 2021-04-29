@@ -10,8 +10,10 @@ class SplayTree
 	public:
 		class iterator;
 	private:
+		Node<T> *end_;
+		Node<T> *root_;
 		int size_;
-		Node<T> *head_;
+		inline void set_root_(const T& val);
 		void _inorder(Node<T> *head);
 		void splay(Node<T> *ptr);
 		void zig(Node<T> *parent, Node<T> *ptr);
@@ -37,8 +39,8 @@ class SplayTree
 		SplayTree split(const T& elt);
 		T get_root()
 		{
-			if (!head_) return T();
-			return head_->value;
+			if (!root_) return T();
+			return root_->value;
 		}
 		template <typename U>
 		friend SplayTree<U> join(const SplayTree<U> &st1, const SplayTree<U> &st2);
@@ -48,6 +50,8 @@ class SplayTree
 			private:
 				Node<T>* p_;
 			public:
+				int front = 0;
+				int back = 0;
 				iterator(Node<T> *p = nullptr) : p_(p) { }
 				~iterator() {}
 				iterator(const iterator& rhs)
@@ -61,7 +65,7 @@ class SplayTree
 				}
 				bool operator!=(const iterator& rhs)
 				{
-					return !operator==(rhs);
+					return !(*this==rhs);
 				}
 				iterator& operator=(const iterator& rhs)
 				{
@@ -76,7 +80,13 @@ class SplayTree
 
 				iterator& operator++()
 				{
-					if(p_){
+					if (p_->end) {
+						++front;
+					}
+					else if (back > 0) {
+						--back;
+					}
+					else {
 						if(p_->right)
 						{
 							p_ = p_->right;
@@ -84,7 +94,7 @@ class SplayTree
 						}
 						else
 						{
-							while(p_->parent && !(p_->parent->value > p_->value)) p_ = p_->parent;
+							while(p_->parent && !p_->parent->end && !(p_->parent->value > p_->value)) p_ = p_->parent;
 							p_ = p_->parent;
 						}
 					}
@@ -99,9 +109,12 @@ class SplayTree
 
 				iterator& operator--()
 				{
-					if(!p_) /* to be completed */
+					if(front > 0) /* to be completed */
 					{
-
+						--front;
+					}
+					else if (back > 0) {
+						++back;
 					}
 					else
 					{
@@ -112,24 +125,12 @@ class SplayTree
 						}
 						else
 						{
-							while(p_->parent && (p_->parent->value < p_->value)) p_ = p_->parent;
+							while(p_->parent && (p_->parent->value > p_->value)) p_ = p_->parent;
 							p_ = p_->parent;
 						}
 					}
 					return *this;
 				}
-
-				iterator operator+(int x)
-				{
-					iterator temp(*this);
-					while(x--)
-					{
-						++temp;
-					}
-					return temp;
-				}
-
-
 		};
 		iterator begin();
 		iterator end();
@@ -140,11 +141,11 @@ class SplayTree
 template <typename T>
 typename SplayTree<T>::iterator SplayTree<T>::begin()
 {
-	if(!head_)
+	if(!root_)
 	{
-		return iterator();
+		return iterator(end_);
 	}
-	Node<T> *trav = head_;
+	Node<T> *trav = root_;
 	while(trav->left)
 	{
 		trav = trav->left;
@@ -155,7 +156,7 @@ typename SplayTree<T>::iterator SplayTree<T>::begin()
 template <typename T>
 typename SplayTree<T>::iterator SplayTree<T>::end()
 {
-	return iterator();
+	return iterator(end_);
 }
 /* -------------- SplayTree iterator functions ends ------------ */
 
@@ -164,16 +165,16 @@ typename SplayTree<T>::iterator SplayTree<T>::end()
 template <typename T>
 SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 {
-	if (!st1.head_ || !st2.head_) {
+	if (!st1.root_ || !st2.root_) {
 		return SplayTree<T>();
 	}
 
-	Node<T> *rightmost_st1 = st1.head_;
+	Node<T> *rightmost_st1 = st1.root_;
 	while (rightmost_st1->right) {
 		rightmost_st1 = rightmost_st1->right;
 	}
 
-	Node<T> *leftmost_st2 = st2.head_;
+	Node<T> *leftmost_st2 = st2.root_;
 	while (leftmost_st2->left) {
 		leftmost_st2 = leftmost_st2->left;
 	}
@@ -185,17 +186,18 @@ SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 	SplayTree<T> combined(st1);
 	SplayTree<T> temp(st2);
 
-	Node<T> *rightmost_combined = combined.head_;
+	Node<T> *rightmost_combined = combined.root_;
 	while (rightmost_combined->right) {
 		rightmost_combined = rightmost_combined->right;
 	}
 
 	combined.splay(rightmost_combined);
 
-	assert (combined.head_->right == nullptr);
+	assert (combined.root_->right == nullptr &&
+			combined.end_->left == combined.root_);
 
-	combined.head_->right = new Node<T>(temp.head_->value);
-	combined.copy(combined.head_->right, temp.head_);
+	combined.root_->right = new Node<T>(temp.root_->value);
+	combined.copy(combined.root_->right, temp.root_);
 
 	return combined;
 }
@@ -205,38 +207,47 @@ SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 
 /* -------------- SplayTree member function -------------------- */
 
+template <typename T>
+inline void SplayTree<T>::set_root_(const T& val)
+{
+	root_ = new Node<T>(val);
+	end_->left = root_;
+	root_->parent = end_;
+}
+
 template<typename T>
-SplayTree<T>::SplayTree() : head_(new Node<T>(T())), size_(0)
-{}
+SplayTree<T>::SplayTree() : end_(new Node<T>(T(), true)), root_(nullptr), size_(0) {}
 
 template <typename T>
-SplayTree<T>::SplayTree(const SplayTree& rhs) : head_(new Node<T>(T())), size_(0)
+SplayTree<T>::SplayTree(const SplayTree& rhs) : end_(new Node<T>(T(), true)), root_(nullptr), size_(0)
 {
-	if (rhs.size_) {
-		// head_ = new Node<T>(rhs.head_->value);
-		copy(head_, rhs.head_);
+	if (rhs.root_) {
+		set_root_(rhs.end_->value);
+		copy(root_, rhs.end_);
 	}
 }
 
 template <typename T>
-SplayTree<T>::SplayTree(const Node<T> *head) : head_(new Node<T>(T())), size_(0)
+SplayTree<T>::SplayTree(const Node<T> *head) : end_(new Node<T>(T(), true)), root_(nullptr), size_(0)
 {
+
 	if (head) {
-		// head_ = new Node<T>(head->value);
-		copy(head_, head);
+		set_root_(head->value);
+		copy(root_, head);
 	}
 }
 
 template <typename T>
 SplayTree<T>& SplayTree<T>::operator=(const SplayTree& rhs)
 {
-	_deallocate(head_);
+	_deallocate(end_);
 
-	head_ = new Node<T>(T());
+	end_ = new Node<T>(T(), true);
 	size_ = 0;
-	if (rhs.size_) {
-		// head_ = new Node<T>(rhs.head_->value);
-		copy(head_, rhs.head_);
+
+	if (rhs.root_) {
+		set_root_(rhs.end_->value);
+		copy(end_, rhs.end_);
 	}
 	return *this;
 }
@@ -262,15 +273,18 @@ void SplayTree<T>::copy(Node<T> *h1, const Node<T> *h2)
 template <typename T>
 void SplayTree<T>::remove(const T& value)
 {
-	Node<T> *elt_ptr = _find(head_, value);
+	Node<T> *elt_ptr = _find(root_, value);
 
 	if (!elt_ptr) {
 		return;
 	}
 
 	splay(elt_ptr);
-	SplayTree<T> left_sub(head_->left);
-	SplayTree<T> right_sub(head_->right);
+
+	assert(root_ == elt_ptr);
+
+	SplayTree<T> left_sub(root_->left);
+	SplayTree<T> right_sub(root_->right);
 	*this = join(left_sub, right_sub);
 	--size_;
 }
@@ -279,16 +293,16 @@ template<typename T>
 void SplayTree<T>::insert(const T& value)
 {
 	// cout << "Node " << value << " being inserted" << '\n';
-	Node<T> *temp = new Node<T>(value);
-	if(size_ == 0)
+	if(!root_)
 	{
-		head_->left = temp;
-		temp->parent = head_;
+		set_root_(value);
 		++size_;
 		return;
 	}
 
-	Node<T> *trav = head_->left;
+	Node<T> *temp = new Node<T>(value);
+
+	Node<T> *trav = root_;
 	Node<T> *prev = nullptr;
 
 	while(trav != nullptr)
@@ -332,7 +346,7 @@ void SplayTree<T>::_inorder(Node<T>* head)
 template <typename T>
 void SplayTree<T>::inorder()
 {
-	_inorder(this->head_->left);
+	_inorder(root_);
 	cout << '\n';
 }
 /*
@@ -349,14 +363,16 @@ void SplayTree<T>::zig(Node<T> *parent, Node<T> *ptr)
 		parent->right = lptr;
 	}
 
-	head_->left = ptr;
+	end_->left = ptr;
 }
 */
 template <typename T>
 void SplayTree<T>::zig(Node<T> *ptr)
 {
 	Node<T> *parent = ptr->parent;
-	assert(parent != head_);
+
+	assert(parent != end_);
+
 	if (parent->left == ptr) {
 		Node<T> *rptr = ptr->right;
 		ptr->right = parent;
@@ -373,7 +389,8 @@ void SplayTree<T>::zig(Node<T> *ptr)
 		if (lptr) lptr->parent = parent;
 	}
 
-	head_->left = ptr;
+	root_ = ptr;
+	end_->left = root_;
 }
 /*
 template <typename T>
@@ -387,7 +404,7 @@ void SplayTree<T>::zig_zag(Node<T> *gp, Node<T> *parent, Node<T> *child)
 	gp->left = rchild;
 	child->right = gp;
 
-	head_->left = child;
+	end_->left = child;
 }
 */
 template <typename T>
@@ -395,7 +412,8 @@ void SplayTree<T>::zig_zag(Node<T> *child)
 {
 	Node<T> *gp = child->parent->parent;
 	Node<T>* parent = child->parent;
-	assert(gp != head_ && parent != head_);
+
+	assert(gp != end_ && parent != end_);
 
 	Node<T> *rchild = child->right;
 	Node<T> *lchild = child->left;
@@ -412,7 +430,8 @@ void SplayTree<T>::zig_zag(Node<T> *child)
 	child->right = gp;
 	gp->parent = child;
 
-	head_->left = child;
+	root_ = child;
+	end_->left = root_;
 }
 /*
 template <typename T>
@@ -426,7 +445,7 @@ void SplayTree<T>::zag_zig(Node<T> *gp, Node<T> *parent, Node<T> *child)
 	gp->right = lchild;
 	child->left = gp;
 
-	head_ = child;
+	end_ = child;
 }
 */
 template <typename T>
@@ -434,7 +453,8 @@ void SplayTree<T>::zag_zig(Node<T> *child)
 {
 	Node<T> *gp = child->parent->parent;
 	Node<T>* parent = child->parent;
-	assert(gp != head_ && parent != head_);
+
+	assert(gp != end_ && parent != end_);
 
 	Node<T> *rchild = child->right;
 	Node<T> *lchild = child->left;
@@ -451,15 +471,16 @@ void SplayTree<T>::zag_zig(Node<T> *child)
 	child->left = gp;
 	gp->parent = child;
 
-	head_->left = child;
+	root_ = child;
+	end_->left = root_;
 }
 
 template <typename T>
 void SplayTree<T>::splay(Node<T> *ptr)
 {
-	if (ptr == head_->left) return;
+	if (ptr == root_) return;
 
-	Node<T> *parent = head_->left;
+	Node<T> *parent = root_;
 	Node<T> *child = nullptr;
 
 	if (parent->value > ptr->value) {
@@ -508,17 +529,17 @@ inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt)
 template <typename T>
 typename SplayTree<T>::iterator SplayTree<T>::find(const T& elt)
 {
-	Node<T> *h = _find(head_->left, elt);
+	Node<T> *h = _find(root_, elt);
 
 	// return iterator instead of the below code
 	if (h) {
 		splay(h);
-		assert(h == head_->left);
+		assert(h == root_ && h == end_->left);
 		return iterator(h);
 	}
 	else
 	{
-		return iterator();
+		return iterator(end_);
 	}
 }
 
@@ -526,7 +547,7 @@ typename SplayTree<T>::iterator SplayTree<T>::find(const T& elt)
 template <typename T>
 SplayTree<T> SplayTree<T>::split(const T& elt)
 {
-	Node<T> *ptr = _find(head_, elt);
+	Node<T> *ptr = _find(end_, elt);
 
 	//iterator pending
 }
@@ -546,7 +567,7 @@ void SplayTree<T>::_deallocate(Node<T> *node)
 template <typename T>
 SplayTree<T>::~SplayTree()
 {
-	_deallocate(head_);
+	_deallocate(end_);
 }
 
 /* -------------- SplayTree member function end ---------------- */
