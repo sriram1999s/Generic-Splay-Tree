@@ -95,19 +95,22 @@ int main()
 
 	auto test = s.end();
 
-	disp(s.begin(), ++ ++ ++ ++test);
+	// disp(s.begin(), ++ ++ ++ ++test);
 
-	disp(s.begin(), -- -- -- --test);
+	// disp(s.begin(), ++ ++ ++ ++test);
+	//
+	disp(s.begin(), -- -- --test);
 
 	cout << "front: " << test.front << '\n';
 	cout << "back: " << test.back << '\n';
 
-	auto test2 = s.begin();
-	--test2;
+	// auto test2 = s.begin();
+	// --test2;
 	// ++test2;
-
-	cout << "front2: " << test2.front << '\n';
-	cout << "back2: " << test2.back << '\n';
+	// ++test2;
+	//
+	// cout << "front2: " << test2.front << '\n';
+	// cout << "back2: " << test2.back << '\n';
 
 	// rdisp(--s.end(), --s.begin());
 }

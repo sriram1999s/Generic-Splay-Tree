@@ -50,8 +50,8 @@ class SplayTree
 			private:
 				Node<T>* p_;
 			public:
-				int front = 0;
-				int back = 0;
+				int front = -1;
+				int back = -1;
 				iterator(Node<T> *p = nullptr) : p_(p) { }
 				~iterator() {}
 				iterator(const iterator& rhs)
@@ -80,10 +80,13 @@ class SplayTree
 
 				iterator& operator++()
 				{
-					if (p_->end) {
+					if (front == -1) {
+						if (p_->parent == nullptr) front = 0;
+					}
+					if (front >= 0) {
 						++front;
 					}
-					else if (back > 0) {
+					else if (back >= 0) {
 						--back;
 					}
 					else {
@@ -109,11 +112,17 @@ class SplayTree
 
 				iterator& operator--()
 				{
-					if(front > 0) /* to be completed */
+					// if (back == -1) {
+					// 	if (p_->left == nullptr && p_->right == nullptr) {
+					// 		cout << "here: " << p_->value << endl;
+					// 		back = 0;
+					// 	}
+					// }
+					if(front >= 0)
 					{
 						--front;
 					}
-					else if (back > 0) {
+					else if (back >= 0) {
 						++back;
 					}
 					else
@@ -129,6 +138,8 @@ class SplayTree
 							p_ = p_->parent;
 						}
 					}
+					cout << "back before returning from --: " << back << endl;
+
 					return *this;
 				}
 		};
