@@ -19,13 +19,13 @@
 
 ## Inclusion
 
-```
+```cpp
 #include "splay_tree.hpp"
 ```
 
 ## Declaration
 
-```
+```cpp
 SplayTree<int> st1;
 SplayTree<float> st2;
 ```
