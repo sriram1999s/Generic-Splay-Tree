@@ -18,9 +18,9 @@ void disp(T first, T last)
 template <typename T>
 void test(SplayTree<T> st)
 {
-	cout << "inorder: "; st.inorder();
-	cout << "size: " << st.size() << "\t\t";
-	cout << "root: " << st.get_root() << '\n';
+	cout << "disp: "; disp(st.begin(), st.end());
+	cout << "size: " << st.size() << "\t\n";
+	// cout << "root: " << st.get_root() << '\n';
 }
 
 int main()
@@ -45,6 +45,9 @@ int main()
 	// test(st1);
 
 	auto joined = st1 + st2;
+
+	test(joined);
+
 	joined = join(st2, st1);
 
 	// test(joined);
@@ -76,6 +79,8 @@ int main()
 	//
 	test(st.first);
 	test(st.second);
+
+	SplayTree<char> char_st;
 
 	// disp(st.first.begin(), st.first.end());
 	// disp(st.second.begin(), st.second.end());
