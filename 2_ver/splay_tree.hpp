@@ -2,8 +2,6 @@
 #include <cassert>
 #include "node.hpp"
 
-using namespace std;
-
 template<typename T>
 class SplayTree
 {
@@ -21,6 +19,7 @@ class SplayTree
 		void zag_zig(Node<T> *ptr);
 		void copy(Node<T> *h1, const Node<T> *h2);
 		void _deallocate(Node<T> *node);
+		std::pair<SplayTree, SplayTree> _split(const T& elt);
 		inline Node<T>* _find(Node<T>*, const T&);
 		SplayTree(const Node<T> *head);
 	public:
@@ -35,14 +34,14 @@ class SplayTree
 		void remove(const T& value);  // overload for iterator -> pending
 		int size();
 		iterator find(const T& elt);
-		SplayTree split(const T& elt); // -> pending
 		T get_root()
 		{
 			if (!root_) return T();
 			return root_->value;
 		}
-		template <typename U> friend SplayTree<U> join(const SplayTree<U> &st1, const SplayTree<U> &st2);
-		template <typename U> friend SplayTree<U> operator+(const SplayTree<U> &st1, const SplayTree<U> &st2);
+		template <typename U> friend SplayTree<U> join(const SplayTree<U>& st1, const SplayTree<U>& st2);
+		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const U& elt);
+		template <typename U> friend SplayTree<U> operator+(const SplayTree<U>& st1, const SplayTree<U>& st2);
 
 		class iterator
 		{
@@ -202,7 +201,7 @@ typename SplayTree<T>::iterator SplayTree<T>::end()
 /* -------------- SplayTree friend functions ------------------- */
 
 template <typename T>
-SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
+SplayTree<T> join(const SplayTree<T>& st1, const SplayTree<T>& st2)
 {
 	if (!st1.root_ && !st2.root_) {
 		return SplayTree<T>();
@@ -247,7 +246,26 @@ SplayTree<T> join(const SplayTree<T> &st1, const SplayTree<T> &st2)
 }
 
 template <typename T>
-SplayTree<T> operator+(const SplayTree<T> &st1, const SplayTree<T> &st2)
+std::pair<SplayTree<T>, SplayTree<T>> split(const SplayTree<T>& st1, const T& elt)
+{
+	if (!st1.root_) return std::pair<SplayTree<T>, SplayTree<T>>();
+
+	SplayTree<T> temp = st1;
+	Node<T> *elt_ptr = temp._find(temp.root_, elt);
+
+	if (elt_ptr) {
+		temp.splay(elt_ptr);
+		SplayTree<T> right_sub(temp.root_->right);
+		temp._deallocate(temp.root_->right);
+		temp.root_->right = nullptr;
+		return std::pair<SplayTree<T>, SplayTree<T>>({temp, right_sub});
+	} else {
+		return std::pair<SplayTree<T>, SplayTree<T>>({temp, SplayTree<T>()});
+	}
+}
+
+template <typename T>
+SplayTree<T> operator+(const SplayTree<T>& st1, const SplayTree<T>& st2)
 {
 	return join(st1, st2);
 }
@@ -298,7 +316,6 @@ SplayTree<T>& SplayTree<T>::operator=(const SplayTree& rhs)
 {
 	// check for self assignment pending
 	if (this != &rhs) {
-		cout << "ramesh\n";
 		_deallocate(end_);
 
 		end_ = new Node<T>(T(), true);
@@ -404,7 +421,7 @@ void SplayTree<T>::_inorder(Node<T>* head)
 	if(!head) return;
 
 	_inorder(head->left);
-	cout << head->value << ' ';
+	std::cout << head->value << ' ';
 	_inorder(head->right);
 }
 
@@ -412,7 +429,7 @@ template <typename T>
 void SplayTree<T>::inorder()
 {
 	_inorder(root_);
-	cout << '\n';
+	std::cout << '\n';
 }
 
 template <typename T>

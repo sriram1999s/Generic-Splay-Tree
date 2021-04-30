@@ -34,22 +34,28 @@ int main()
 	st2.insert(5.1);
 	st2.insert(6.1);
 
-	test(st2);
+	// test(st2);
 
 	st1.insert(0.1);
 	st1.insert(0.4);
 	st1.insert(0.2);
 	st1.insert(0.3);
 
-	test(st1);
+	// test(st1);
 
 	auto joined = st1 + st2;
+	joined = join(st1, st2);
 
-	test(joined);
+	// test(joined);
 
 	auto beg = joined.begin();
 	auto end = joined.end();
 
-	cout << "beg: " << *beg << '\n';
-	cout << "end: " << *end << '\n';
+	// cout << "beg: " << *beg << '\n';
+	// cout << "end: " << *end << '\n';
+
+	auto st = split(joined, (float)0.4);
+
+	test(st.first);
+	test(st.second);
 }
