@@ -1,3 +1,6 @@
-# GenericProgramming
+# iterator
+- bidirectional
+- ++, --, ==, !=, =, *
 
-## generic splay tree dev
+TODO:
+- [ ] iterator tags

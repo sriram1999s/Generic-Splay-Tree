@@ -1,5 +1,6 @@
 #include<iostream>
 #include <cassert>
+#include <cstddef>
 #include "node.hpp"
 
 template<typename T>
@@ -28,7 +29,7 @@ class SplayTree
 		~SplayTree();
 		SplayTree(const SplayTree&);
 		SplayTree& operator=(const SplayTree&);
-		// provide operator functions
+		template <typename U> friend SplayTree<U> operator+(const SplayTree<U>& st1, const SplayTree<U>& st2);
 		void inorder();
 		void insert(const T& value);
 		void remove(const T& value);  // overload for iterator -> pending
@@ -40,8 +41,7 @@ class SplayTree
 			return root_->value;
 		}
 		template <typename U> friend SplayTree<U> join(const SplayTree<U>& st1, const SplayTree<U>& st2);
-		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const U& elt);
-		template <typename U> friend SplayTree<U> operator+(const SplayTree<U>& st1, const SplayTree<U>& st2);
+		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const typename SplayTree<U>::iterator& it);
 
 		class iterator
 		{
@@ -50,6 +50,12 @@ class SplayTree
 				int front = 0;
 				int back = 0;
 			public:
+				using iterator_category = std::bidirectional_iterator_tag;
+				using difference_type = std::ptrdiff_t;
+				using value_type = T;
+				using pointer = T*;
+				using reference = T&;
+
 				iterator(Node<T> *p = nullptr) : p_(p) { }
 				~iterator() {}
 				iterator(const iterator& rhs)
@@ -71,14 +77,17 @@ class SplayTree
 
 				iterator& operator=(const iterator& rhs)
 				{
-					p_ = rhs.p_;
-					front = rhs.front;
-					back = rhs.back;
+					if (this != &rhs) {
+						p_ = rhs.p_;
+						front = rhs.front;
+						back = rhs.back;
+					}
 					return *this;
 				}
 
-				T operator*()
+				T& operator*() const
 				{
+					// std::cout << "in *\n";
 					return p_->value;
 				}
 
@@ -115,39 +124,32 @@ class SplayTree
 				{
 					if(front > 0)
 					{
-						// cout << "in if front\n";
 						--front;
 					}
 					else if (back > 0) {
-						// cout << "in if back\n";
 						++back;
 					}
 					else
 					{
-						// cout << "in else\n";
 						if(p_->left)
 						{
-							// cout << "in if p left\n";
 							p_ = p_->left;
 							while(p_->right) p_ = p_->right;
 						}
 						else
 						{
-							// cout << "in else of p left\n";
 							Node<T> *copy = p_;
 							while (copy->parent && copy->parent->left == copy) {
 								copy = copy->parent;
 							}
 							if (!copy->end) {
-								while(p_->parent && (p_->parent->value > p_->value)) p_ = p_->parent;
+								while(p_->parent && !p_->parent->end && (p_->parent->value > p_->value)) p_ = p_->parent;
 								p_ = p_->parent;
 							} else {
 								back = 1;
 							}
 						}
 					}
-					// cout << "back before returning from --: " << back << endl;
-
 					return *this;
 				}
 
@@ -157,9 +159,11 @@ class SplayTree
 					--*this;
 					return temp;
 				}
+				// template <typename U> friend void SplayTree<U>::splay(Node<U>*);
 		};
-		iterator begin();
-		iterator end();
+		iterator begin() const;
+		iterator end() const;
+
 };
 
 // debug func
@@ -177,7 +181,7 @@ void SplayTree<T>::debug() {}
 /* -------------- SplayTree iterator functions ----------------- */
 
 template <typename T>
-typename SplayTree<T>::iterator SplayTree<T>::begin()
+typename SplayTree<T>::iterator SplayTree<T>::begin() const
 {
 	if(!root_)
 	{
@@ -192,7 +196,7 @@ typename SplayTree<T>::iterator SplayTree<T>::begin()
 }
 
 template <typename T>
-typename SplayTree<T>::iterator SplayTree<T>::end()
+typename SplayTree<T>::iterator SplayTree<T>::end() const
 {
 	return iterator(end_);
 }
@@ -246,12 +250,17 @@ SplayTree<T> join(const SplayTree<T>& st1, const SplayTree<T>& st2)
 }
 
 template <typename T>
-std::pair<SplayTree<T>, SplayTree<T>> split(const SplayTree<T>& st1, const T& elt)
+std::pair<SplayTree<T>, SplayTree<T>> split(const SplayTree<T>& st1, const typename SplayTree<T>::iterator& it)
 {
 	if (!st1.root_) return std::pair<SplayTree<T>, SplayTree<T>>();
 
-	SplayTree<T> temp = st1;
-	Node<T> *elt_ptr = temp._find(temp.root_, elt);
+	SplayTree<T> temp(st1);
+
+	if (it == st1.end()) {
+		return std::pair<SplayTree<T>, SplayTree<T>>({temp, SplayTree<T>()});
+	}
+
+	Node<T> *elt_ptr = temp._find(temp.root_, *it);
 
 	if (elt_ptr) {
 		temp.splay(elt_ptr);
@@ -262,6 +271,7 @@ std::pair<SplayTree<T>, SplayTree<T>> split(const SplayTree<T>& st1, const T& el
 	} else {
 		return std::pair<SplayTree<T>, SplayTree<T>>({temp, SplayTree<T>()});
 	}
+
 }
 
 template <typename T>
