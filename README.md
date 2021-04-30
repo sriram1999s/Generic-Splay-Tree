@@ -3,4 +3,4 @@
 - ++, --, ==, !=, =, *
 
 TODO:
-- [ ] iterator tags
+- [x] iterator tags
