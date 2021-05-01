@@ -22,10 +22,10 @@ class SplayTree
 		void _deallocate(Node<T> *node);
 		inline Node<T>* _find(Node<T>*, const T&) const;
 		SplayTree(const Node<T> *head);
+		void debug();
 		void inorder();
 		T get_root();
 	public:
-		void debug();
 		SplayTree();
 		~SplayTree();
 		SplayTree(const SplayTree&);
@@ -421,17 +421,15 @@ void SplayTree<T>::insert(const T& value)
 	{
 		prev = trav;
 
-		if(prev->value == value)
+		if (prev->value == value) break;
+		
+		if (!(trav->value < value))
 		{
-			break;
-		}
-		else if(trav->value < value)
-		{
-			trav = trav->right;
+			trav = trav->left;
 		}
 		else
 		{
-			trav = trav->left;
+			trav = trav->right;
 		}
 	}
 
@@ -578,7 +576,7 @@ void SplayTree<T>::splay(Node<T> *ptr)
 		if (child == ptr) {
 			zig(child);
 		} else {
-			if (!(child->value < ptr->value)) {
+			if (child->value < ptr->value) {
 				zag_zig(child->left);
 			} else {
 				zig(child);

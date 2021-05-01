@@ -30,19 +30,25 @@ int main()
 	SplayTree<int> st2;
 	SplayTree<int> st1;
 
-	st2.insert(-1);
-	st2.insert(-2);
-	st2.insert(-4);
-	st2.insert(-3);
+	st2.insert(11);
+	st2.insert(7);
+	st2.insert(7);
+	st2.insert(26);
 
-	st1.insert(-8);
-	st1.insert(-5);
-	st1.insert(-16);
 
+	st1.insert(4);
+	st1.insert(6);
+	st1.insert(1);
+
+	// return 0;
 	test(st2);
 	test(st1);
 
 	SplayTree<int> joined = st1 + st2;
+
+	joined.find(7);
+
+	joined.debug();
 
 	test(joined);
 }
