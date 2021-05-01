@@ -357,6 +357,7 @@ SplayTree<T>& SplayTree<T>::operator=(const SplayTree& rhs)
 
 		end_ = new Node<T>(T(), true);
 		size_ = 0;
+		root_ = nullptr;
 
 		if (rhs.root_) {
 			create_root_(rhs.root_->value);
