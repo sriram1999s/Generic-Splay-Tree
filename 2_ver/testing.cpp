@@ -1,7 +1,7 @@
 #include <iostream>
 #include <algorithm>
-#include "splay_tree_change_to_less_than.hpp"
-// #include "splay_trr.hpp"
+// #include "splay_tree_change_to_less_than.hpp"
+#include "splay_tree.hpp"
 
 using namespace std;
 
@@ -36,31 +36,40 @@ int main()
 	st2.insert(5.1);
 	st2.insert(6.1);
 
-	// test(st2);
+	test(st2);
 
 	st1.insert(0.1);
 	st1.insert(0.4);
-	st1.insert(0.0);
+	// st1.insert(0.0);
 	st1.insert(0.2);
 	st1.insert(0.3);
 
-	// test(st1);
-
+	test(st1);
+	//
 	auto joined = st1 + st2;
-
+	//
 	test(joined);
 
+	SplayTree<int> st_empty;
+
+	cout << (st_empty.begin()==st_empty.end()) << '\n';
+	test(st_empty);
+	//
+	SplayTree<float> joined_2 = join(st2, st1);
 	joined = join(st2, st1);
 
-	// test(joined);
+	cout << (joined_2.begin()==joined_2.end()) << '\n';
+	cout << "j begin: " << *joined.begin() << '\n';
+	cout << (joined.begin()==joined.end()) << '\n';
 
+	test(joined_2);
+	test(joined);
+	//
 	auto beg = joined.begin();
 	auto end = joined.end();
 
 	// cout << "beg: " << *beg << '\n';
 	// cout << "end: " << *end << '\n';
-
-	SplayTree<float> st_empty;
 
 	test(joined);
 
@@ -87,6 +96,6 @@ int main()
 
 	SplayTree<char> char_st;
 
-	// disp(st.first.begin(), st.first.end());
-	// disp(st.second.begin(), st.second.end());
+	disp(st.first.begin(), st.first.end());
+	disp(st.second.begin(), st.second.end());
 }
