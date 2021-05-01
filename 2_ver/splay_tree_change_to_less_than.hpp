@@ -20,13 +20,12 @@ class SplayTree
 		void zag_zig(Node<T> *ptr);
 		void copy(Node<T> *h1, const Node<T> *h2);
 		void _deallocate(Node<T> *node);
-		std::pair<SplayTree, SplayTree> _split(const T& elt);
-		inline Node<T>* _find(Node<T>*, const T&);
+		inline Node<T>* _find(Node<T>*, const T&) const;
 		SplayTree(const Node<T> *head);
+		void debug();
 		void inorder();
 		T get_root();
 	public:
-		void debug();
 		SplayTree();
 		~SplayTree();
 		SplayTree(const SplayTree&);
@@ -38,6 +37,7 @@ class SplayTree
 		iterator find(const T& elt);
 		template <typename U> friend SplayTree<U> join(const SplayTree<U>& st1, const SplayTree<U>& st2);
 		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const typename SplayTree<U>::iterator& it);
+		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const U& elt);
 
 		class iterator
 		{
@@ -274,6 +274,26 @@ std::pair<SplayTree<T>, SplayTree<T>> split(const SplayTree<T>& st1, const typen
 	}
 }
 
+
+template <typename T>
+std::pair<SplayTree<T>, SplayTree<T>> split(const SplayTree<T>& st1, const T& elt)
+{
+	if (!st1.root_) return std::pair<SplayTree<T>, SplayTree<T>>();
+
+	SplayTree<T> temp(st1);
+	Node<T> *elt_ptr = temp._find(temp.root_, elt);
+
+	if (elt_ptr && !elt_ptr->end) {
+		temp.splay(elt_ptr);
+		SplayTree<T> right_sub(temp.root_->right);
+		temp._deallocate(temp.root_->right);
+		temp.root_->right = nullptr;
+		return std::pair<SplayTree<T>, SplayTree<T>>({temp, right_sub});
+	} else {
+		return std::pair<SplayTree<T>, SplayTree<T>>({temp, SplayTree<T>()});
+	}
+}
+
 template <typename T>
 SplayTree<T> operator+(const SplayTree<T>& st1, const SplayTree<T>& st2)
 {
@@ -401,17 +421,15 @@ void SplayTree<T>::insert(const T& value)
 	{
 		prev = trav;
 
-		if(prev->value == value)
+		if (prev->value == value) break;
+		
+		if (!(trav->value < value))
 		{
-			break;
-		}
-		else if(trav->value < value)
-		{
-			trav = trav->right;
+			trav = trav->left;
 		}
 		else
 		{
-			trav = trav->left;
+			trav = trav->right;
 		}
 	}
 
@@ -558,7 +576,7 @@ void SplayTree<T>::splay(Node<T> *ptr)
 		if (child == ptr) {
 			zig(child);
 		} else {
-			if (!(child->value < ptr->value)) {
+			if (child->value < ptr->value) {
 				zag_zig(child->left);
 			} else {
 				zig(child);
@@ -569,7 +587,7 @@ void SplayTree<T>::splay(Node<T> *ptr)
 }
 
 template <typename T>
-inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt)
+inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt) const
 {
 	while (ptr && ptr->value != elt) {
 		if (!(ptr->value < elt)) {
