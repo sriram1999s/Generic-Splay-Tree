@@ -23,10 +23,10 @@ class SplayTree
 		std::pair<SplayTree, SplayTree> _split(const T& elt);
 		inline Node<T>* _find(Node<T>*, const T&);
 		SplayTree(const Node<T> *head);
-		void debug();
 		void inorder();
 		T get_root();
 	public:
+		void debug();
 		SplayTree();
 		~SplayTree();
 		SplayTree(const SplayTree&);
@@ -105,7 +105,7 @@ class SplayTree
 						}
 						else
 						{
-							while(p_->parent && !p_->parent->end && !(p_->parent->value > p_->value)) p_ = p_->parent;
+							while(p_->parent && !p_->parent->end && (p_->parent->value < p_->value)) p_ = p_->parent;
 							p_ = p_->parent;
 						}
 					}
@@ -142,7 +142,7 @@ class SplayTree
 								copy = copy->parent;
 							}
 							if (!copy->end) {
-								while(p_->parent && !p_->parent->end && (p_->parent->value > p_->value)) p_ = p_->parent;
+								while(p_->parent && !p_->parent->end && !(p_->parent->value < p_->value)) p_ = p_->parent;
 								p_ = p_->parent;
 							} else {
 								back = 1;
@@ -400,13 +400,18 @@ void SplayTree<T>::insert(const T& value)
 	while(trav != nullptr)
 	{
 		prev = trav;
-		if(trav->value > value)
+		if(trav->value == value)
 		{
-			trav = trav->left;
+			prev = trav;
+			break;
+		}
+		else if(trav->value < value)
+		{
+			trav = trav->right;
 		}
 		else
 		{
-			trav = trav->right;
+			trav = trav->left;
 		}
 	}
 
@@ -537,12 +542,12 @@ void SplayTree<T>::splay(Node<T> *ptr)
 	Node<T> *parent = root_;
 	Node<T> *child = nullptr;
 
-	if (parent->value > ptr->value) {
+	if (!(parent->value < ptr->value)) {
 		child = parent->left;
 		if (child == ptr) {
 			zig(child);
 		} else {
-			if (child->value > ptr->value) {
+			if (!(child->value < ptr->value)) {
 				zig(child);
 			} else {
 				zig_zag(child->right);
@@ -553,7 +558,7 @@ void SplayTree<T>::splay(Node<T> *ptr)
 		if (child == ptr) {
 			zig(child);
 		} else {
-			if (child->value > ptr->value) {
+			if (!(child->value < ptr->value)) {
 				zag_zig(child->left);
 			} else {
 				zig(child);
@@ -567,7 +572,7 @@ template <typename T>
 inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt)
 {
 	while (ptr && ptr->value != elt) {
-		if (ptr->value > elt) {
+		if (!(ptr->value < elt)) {
 			ptr = ptr->left;
 		} else {
 			ptr = ptr->right;
