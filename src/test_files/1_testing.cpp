@@ -1,6 +1,5 @@
 #include <iostream>
 #include <algorithm>
-// #include "splay_tree_change_to_less_than.hpp"
 #include "../splay_tree.hpp"
 
 using namespace std;
