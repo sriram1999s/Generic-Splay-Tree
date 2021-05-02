@@ -16,10 +16,9 @@
 
 ## Requirements On User Defined Data Type
 
+- Operator ```<```
 - Operator ```==```
 - Operator ```!=```
-- Operator ```<```
-- Operator ```<<```
 
 # Usage of Splay Tree
 
