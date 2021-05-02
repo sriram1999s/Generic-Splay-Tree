@@ -14,6 +14,13 @@
 	- Supported: ```++```, ```--```, ```==```,```!=```,```=```,```*``` (lvalue and rvalue dereference)
 	- All std algorithms that work for bidirectional iterators
 
+## Requirements On User Defined Data Type
+
+- Operator ```==```
+- Operator ```!=```
+- Operator ```<```
+- Operator ```<<```
+
 # Usage of Splay Tree
 
 ## Inclusion
