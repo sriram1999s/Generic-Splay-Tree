@@ -1,5 +1,9 @@
 # Splay Tree
 
+Code can be found [here](https://github.com/sriram1999s/GenericProgramming/blob/main/src)
+
+Examples can be found [here](https://github.com/sriram1999s/GenericProgramming/blob/main/src/test_files)
+
 ## Functionalities
 
 - [Insertion](#Insertion)
@@ -14,7 +18,7 @@
 	- Supported: ```++```, ```--```, ```==```,```!=```,```=```,```*``` (lvalue and rvalue dereference)
 	- All std algorithms that work for bidirectional iterators
 
-## Requirements On User Defined Data Type
+## Requirements for user defined data type
 
 - Operator ```<```
 - Operator ```==```
