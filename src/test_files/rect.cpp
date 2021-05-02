@@ -18,5 +18,5 @@ bool operator!=(const Rect& lhs, const Rect& rhs)
 
 ostream& operator<<(ostream& o,const Rect& rect)
 {
-  return o << "lenght : " << rect.length_ << " breadth : " << rect.breadth_;
+  return o << "| l:" << rect.length_ << " b: " << rect.breadth_ << " |";
 }

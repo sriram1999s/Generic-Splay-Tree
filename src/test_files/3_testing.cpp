@@ -1,6 +1,6 @@
 #include <iostream>
 #include <algorithm>
-#include "splay_tree.hpp"
+#include "../splay_tree.hpp"
 
 using namespace std;
 
@@ -30,19 +30,24 @@ int main()
 	SplayTree<int> st2;
 	SplayTree<int> st1;
 
-	st2.insert(-1);
-	st2.insert(-2);
-	st2.insert(-4);
-	st2.insert(-3);
+	st2.insert(4);
+	st2.insert(7);
+	st2.insert(7);
+	st2.insert(2);
 
-	st1.insert(-8);
-	st1.insert(-5);
-	st1.insert(-16);
+	st2.debug();
 
+	st1.insert(26);
+	st1.insert(11);
+	st1.insert(1);
+
+	st1.debug();
+
+	// return 0;
 	test(st2);
 	test(st1);
 
-	SplayTree<int> joined = st1 + st2;
-
-	test(joined);
+	// SplayTree<int> joined = st1 + st2;
+	//
+	// test(joined);
 }
