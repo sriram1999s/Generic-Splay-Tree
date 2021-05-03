@@ -52,7 +52,7 @@ st2.remove(1.5);
 ```
 
 ## Joining
-> Joining of two splay trees can take place only when the largest element is smaller than the smallest element in the second tree
+> Joining of two splay trees can take place only when the largest element of the first tree is smaller than the smallest element in the second tree
 
 ```c++
 // assume two trees of type SplayTree<float> name st1 and st2
