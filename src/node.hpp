@@ -16,6 +16,8 @@ class Node
 		template <typename U> friend SplayTree<U> join(const SplayTree<U> &st1, const SplayTree<U> &st2);
 		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const typename SplayTree<U>::iterator& it);
 		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const U& elt);
+
+		template <typename U> friend bool operator<(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
 };
 
 /* -------------- Node member functions ------------------- */

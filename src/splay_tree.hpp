@@ -19,6 +19,7 @@ class SplayTree
 		void zig_zag(Node<T> *ptr);
 		void zag_zig(Node<T> *ptr);
 		void copy(Node<T> *h1, const Node<T> *h2);
+		static bool check_equality(Node<T> *h1, const Node<T> *h2);
 		void _deallocate(Node<T> *node);
 		inline Node<T>* _find(Node<T>*, const T&) const;
 		SplayTree(const Node<T> *head);
@@ -38,6 +39,10 @@ class SplayTree
 		template <typename U> friend SplayTree<U> join(const SplayTree<U>& st1, const SplayTree<U>& st2);
 		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const typename SplayTree<U>::iterator& it);
 		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const U& elt);
+
+		template <typename U> friend bool operator<(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
+		template <typename U> friend bool operator==(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
+		template <typename U> friend bool operator!=(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
 
 		class iterator
 		{
@@ -200,6 +205,40 @@ typename SplayTree<T>::iterator SplayTree<T>::end() const
 
 /* -------------- SplayTree friend functions ------------------- */
 
+
+template <typename T>
+bool operator==(const SplayTree<T>& lhs, const SplayTree<T>& rhs)
+{
+	return SplayTree<T>::check_equality(lhs.root_, rhs.root_);
+}
+
+template <typename T>
+bool operator!=(const SplayTree<T>& lhs, const SplayTree<T>& rhs)
+{
+	return !(lhs==rhs);
+}
+
+
+template <typename T>
+bool operator<(const SplayTree<T>& lhs, const SplayTree<T>& rhs)
+{
+	if (!lhs.root_ && !rhs.root_) return false;
+	if (!lhs.root_) return true;
+	if (!rhs.root_) return false;
+
+	Node<T> *rightmost_lhs = lhs.root_;
+	while (rightmost_lhs->right) {
+		rightmost_lhs = rightmost_lhs->right;
+	}
+
+	Node<T> *leftmost_rhs = rhs.root_;
+	while (leftmost_rhs->left) {
+		leftmost_rhs = leftmost_rhs->left;
+	}
+
+	return rightmost_lhs->value < leftmost_rhs->value;
+}
+
 template <typename T>
 SplayTree<T> join(const SplayTree<T>& st1, const SplayTree<T>& st2)
 {
@@ -209,11 +248,6 @@ SplayTree<T> join(const SplayTree<T>& st1, const SplayTree<T>& st2)
 
 	if (!st1.root_) return SplayTree<T>(st2);
 	if (!st2.root_) return SplayTree<T>(st1);
-
-	// Node<T> *rightmost_st1 = st1.root_;
-	// while (rightmost_st1->right) {
-	// 	rightmost_st1 = rightmost_st1->right;
-	// }
 
 	SplayTree<T> combined(st1);
 
@@ -226,10 +260,6 @@ SplayTree<T> join(const SplayTree<T>& st1, const SplayTree<T>& st2)
 	while (leftmost_st2->left) {
 		leftmost_st2 = leftmost_st2->left;
 	}
-
-	// if (!(rightmost_st1->value < leftmost_st2->value)) {
-	// 	return SplayTree<T>();
-	// }
 
 	if (!(rightmost_combined->value < leftmost_st2->value)) {
 		return SplayTree<T>();
@@ -365,6 +395,19 @@ SplayTree<T>& SplayTree<T>::operator=(const SplayTree& rhs)
 		}
 	}
 	return *this;
+}
+
+template <typename T>
+bool SplayTree<T>::check_equality(Node<T> *h1, const Node<T> *h2)
+{
+	if (!h1 && !h2) return true;
+	if (!h1 || !h2) return false;
+
+	if (h1->value == h2->value) {
+		return check_equality(h1->left, h2->left) && check_equality(h1->right, h2->right);
+	} else {
+		return false;
+	}
 }
 
 template <typename T>
