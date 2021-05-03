@@ -11,6 +11,8 @@ Examples can be found [here](https://github.com/sriram1999s/GenericProgramming/b
 - [Joining](#Joining)
 - [Splitting](#Splitting)
 - [Finding](#Finding)
+- Operators supported
+	- ```<```, ```==```, ```!=```
 
 - <font size="5"> [Iterators](#Iterators) </font>
 
@@ -61,6 +63,13 @@ SplayTree<float> joined = join(st1, st2);
 OR
 ```c++
 SplayTree<float> joined = st1 + st2;
+```
+OR
+```c++
+// operator< is supported for splay trees
+if (st1 < st2) {
+	SplayTree<float> joined = join(st1, st2);
+}
 ```
 
 ## Splitting
