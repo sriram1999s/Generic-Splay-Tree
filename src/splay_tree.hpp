@@ -36,6 +36,8 @@ class SplayTree
 		void remove(const T& value);  // overload for iterator -> pending
 		int size();
 		iterator find(const T& elt);
+		iterator min_element();
+		iterator max_element();
 		template <typename U> friend SplayTree<U> join(const SplayTree<U>& st1, const SplayTree<U>& st2);
 		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const typename SplayTree<U>::iterator& it);
 		template <typename U> friend std::pair<SplayTree<U>, SplayTree<U>> split(const SplayTree<U>& st1, const U& elt);
@@ -644,6 +646,19 @@ inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt) const
 	}
 
 	return ptr;
+}
+
+template <typename T>
+typename SplayTree<T>::iterator SplayTree<T>::min_element()
+{
+	return this->begin();
+}
+
+template <typename T>
+typename SplayTree<T>::iterator SplayTree<T>::max_element()
+{
+	if (root_) return --this->end();
+	return this->end();
 }
 
 template <typename T>

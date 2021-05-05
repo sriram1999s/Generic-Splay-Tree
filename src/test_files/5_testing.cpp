@@ -8,7 +8,7 @@ void disp(T first, T last)
 {
 	while(first != last)
 	{
-		cout << *first << '\t';
+		cout << *first << ' ';
 		++first;
 	}
 	cout << '\n';
@@ -43,8 +43,13 @@ int main()
 
 	test(joined);
 
-	joined = st1 + st2;
+	// joined = st1 + st2;
 	// joined = st2 + st1;
 
 	test(joined);
+
+	joined = SplayTree<int>();
+
+	cout << "min_elt: " << *--joined.min_element() << '\n';
+	cout << "max_elt: " << *++joined.max_element() << '\n';
 }
