@@ -20,8 +20,8 @@ void test(SplayTree<T> st)
 {
 	cout << "disp: "; disp(st.begin(), st.end());
 	cout << "size: " << st.size() << "\n";
+	cout << "root: " << st.get_root() << '\n';
 }
-
 int main()
 {
 	SplayTree<Rect> st1;
@@ -68,4 +68,20 @@ int main()
 
 	test(s.first);
 	test(s.second);
+
+	cout << '\n';
+	cout << "std::min_elt: " << *min_element(joined.begin(), joined.end()) << '\n';
+	test(joined);
+
+	cout << '\n';
+	cout << "std::max_elt: " << *max_element(joined.begin(), joined.end()) << '\n';
+	test(joined);
+
+	cout << '\n';
+	cout << "min_elt: " << *joined.min_element() << '\n';
+	test(joined);
+
+	cout << '\n';
+	cout << "max_elt: " << *joined.max_element() << '\n';
+	test(joined);
 }

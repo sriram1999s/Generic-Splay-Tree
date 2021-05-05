@@ -3,6 +3,9 @@
 
 using namespace std;
 
+#include<algorithm>
+
+
 template <typename T>
 void disp(T first, T last)
 {
@@ -19,6 +22,7 @@ void test(SplayTree<T> st)
 {
 	cout << "disp: "; disp(st.begin(), st.end());
 	cout << "size: " << st.size() << "\n";
+	cout << "root: " << st.get_root() << '\n';
 }
 
 int main()
@@ -41,15 +45,43 @@ int main()
 
 	auto joined = st2 + st1;
 
-	test(joined);
+	// test(joined);
 
 	// joined = st1 + st2;
 	// joined = st2 + st1;
 
+	// test(joined);
+
+	// joined = SplayTree<int>();
+	cout << '\n';
+	cout << "std::min_elt: " << *min_element(joined.begin(), joined.end()) << '\n';
 	test(joined);
 
-	joined = SplayTree<int>();
+	cout << '\n';
+	cout << "std::max_elt: " << *max_element(joined.begin(), joined.end()) << '\n';
+	test(joined);
 
-	cout << "min_elt: " << *--joined.min_element() << '\n';
-	cout << "max_elt: " << *++joined.max_element() << '\n';
+	cout << '\n';
+	cout << "min_elt: " << *joined.min_element() << '\n';
+	test(joined);
+
+	cout << '\n';
+	cout << "max_elt: " << *joined.max_element() << '\n';
+	test(joined);
+
+
+
+
+	// cout << '\n';
+	// SplayTree<int> max_tree = max(st1, st2);
+	// test(max_tree);
+	// cout << '\n';
+	// SplayTree<int> min_tree = min(st1, st2);
+	// test(min_tree);
+	// cout << '\n';
+	// max_tree = std::max(st1, st2);
+	// test(max_tree);
+	// cout << '\n';
+	// min_tree = std::min(st1, st2);
+	// test(min_tree);
 }

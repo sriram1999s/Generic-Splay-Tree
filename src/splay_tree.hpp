@@ -13,7 +13,7 @@ class SplayTree
 		Node<T> *root_;
 		int size_;
 		inline void create_root_(const T& val);
-		void _inorder(Node<T> *head);
+		void _inorder(Node<T> *head) const;
 		void splay(Node<T> *ptr);
 		void zig(Node<T> *ptr);
 		void zig_zag(Node<T> *ptr);
@@ -23,9 +23,9 @@ class SplayTree
 		void _deallocate(Node<T> *node);
 		inline Node<T>* _find(Node<T>*, const T&) const;
 		SplayTree(const Node<T> *head);
-		void inorder();
-		T get_root();
+		void inorder() const;
 	public:
+		T get_root();
 		void debug();
 		SplayTree();
 		~SplayTree();
@@ -45,6 +45,8 @@ class SplayTree
 		template <typename U> friend bool operator<(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
 		template <typename U> friend bool operator==(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
 		template <typename U> friend bool operator!=(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
+		template <typename U> friend SplayTree<U> min(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
+		template <typename U> friend SplayTree<U> max(const SplayTree<U>& lhs, const SplayTree<U>& rhs);
 
 		class iterator
 		{
@@ -206,8 +208,24 @@ typename SplayTree<T>::iterator SplayTree<T>::end() const
 /* -------------- SplayTree iterator functions ends ------------ */
 
 /* -------------- SplayTree friend functions ------------------- */
+// template <typename T>
+// std::ostream& operator<<(std::ostream& o, const SplayTree<T>& rhs)
+// {
+// 	return o << rhs.inorder();
+// }
 
-
+template <typename T>
+SplayTree<T> min(const SplayTree<T>& lhs, const SplayTree<T>& rhs)
+{
+	std::cout << "custom\n";
+	return (lhs < rhs) ? lhs : rhs ;
+}
+template <typename T>
+SplayTree<T> max(const SplayTree<T>& lhs, const SplayTree<T>& rhs)
+{
+	std::cout << "custom\n";
+	return !(lhs < rhs) ? lhs : rhs ;
+}
 template <typename T>
 bool operator==(const SplayTree<T>& lhs, const SplayTree<T>& rhs)
 {
@@ -503,7 +521,7 @@ void SplayTree<T>::insert(const T& value)
 }
 
 template<typename T>
-void SplayTree<T>::_inorder(Node<T>* head)
+void SplayTree<T>::_inorder(Node<T>* head) const
 {
 	if(!head) return;
 
@@ -513,7 +531,7 @@ void SplayTree<T>::_inorder(Node<T>* head)
 }
 
 template <typename T>
-void SplayTree<T>::inorder()
+void SplayTree<T>::inorder() const
 {
 	_inorder(root_);
 	std::cout << '\n';
@@ -651,14 +669,27 @@ inline Node<T>* SplayTree<T>::_find(Node<T>* ptr, const T& elt) const
 template <typename T>
 typename SplayTree<T>::iterator SplayTree<T>::min_element()
 {
-	return this->begin();
+	if(!root_) return this->end();
+	Node<T> *trav = root_;
+	while(trav->left)
+	{
+		trav = trav->left;
+	}
+	splay(trav);
+	return iterator(trav);
 }
 
 template <typename T>
 typename SplayTree<T>::iterator SplayTree<T>::max_element()
 {
-	if (root_) return --this->end();
-	return this->end();
+	if(!root_) return this->end();
+	Node<T> *trav = root_;
+	while(trav->right)
+	{
+		trav = trav->right;
+	}
+	splay(trav);
+	return iterator(trav);
 }
 
 template <typename T>
